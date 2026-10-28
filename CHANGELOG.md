@@ -1,7 +1,11 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- loadViews() - structure loaded by getStructure() contains the names of views (from `INFORMATION_SCHEMA.VIEWS` (schema `public`)), needed by `viewExists()` in migrations
+
 ### Changed
+- requires `efabrica/phoenix-core` ^4.1 (`StructureBehavior::loadViews()`)
 - phpunit.xml.dist migrated to the PHPUnit 9 configuration schema (`<coverage>` instead of the deprecated `<filter><whitelist>`), the "deprecated schema" warning is gone
 
 ## [1.0.0] - 2026-10-26

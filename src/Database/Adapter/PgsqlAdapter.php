@@ -55,6 +55,17 @@ final class PgsqlAdapter extends PdoAdapter
         return $tables;
     }
 
+    protected function loadViews(string $database): array
+    {
+        /** @var array<array<string, string>> $views */
+        $views = $this->query(sprintf("
+            SELECT table_name AS view_name
+            FROM INFORMATION_SCHEMA.VIEWS
+            WHERE table_catalog = '%s' AND table_schema = 'public'
+            ORDER BY table_name", $database))->fetchAll();
+        return array_map(fn(array $view): string => $view['view_name'], $views);
+    }
+
     protected function createMigrationTable(array $table): MigrationTable
     {
         $migrationTable = parent::createMigrationTable($table);

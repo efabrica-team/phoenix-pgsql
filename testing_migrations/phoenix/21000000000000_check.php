@@ -122,6 +122,14 @@ class Check extends AbstractMigration
             throw new Exception('non_existing_table exists!');
         }
 
+        if ($this->viewExists('non_existing_view')) {
+            throw new Exception('non_existing_view exists!');
+        }
+
+        if ($this->viewExists('table_2')) {
+            throw new Exception('table_2 is a table, not a view!');
+        }
+
         if ($this->tableColumnExists('non_existing_table', 'some_column')) {
             throw new Exception('non_existing_table.some_column exists!');
         }
