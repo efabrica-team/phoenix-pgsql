@@ -14,7 +14,7 @@
         "php": "^8.4",
         "ext-pdo": "*",
         "ext-pdo_pgsql": "*",
-        "efabrica/phoenix-core": "^4.0",
+        "efabrica/phoenix-core": "^4.1",
         "efabrica/phoenix-pdo": "^1.0"
     },
     "require-dev": {

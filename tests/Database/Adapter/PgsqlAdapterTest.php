@@ -10,6 +10,7 @@ use Phoenix\Database\Element\ForeignKey;
 use Phoenix\Database\Element\Index;
 use Phoenix\Database\Element\IndexColumn;
 use Phoenix\Database\Element\MigrationTable;
+use Phoenix\Database\Element\MigrationView;
 use Phoenix\Database\Element\Structure;
 use Phoenix\Database\Element\Table;
 use Phoenix\Database\QueryBuilder\PgsqlQueryBuilder;
@@ -70,6 +71,38 @@ final class PgsqlAdapterTest extends TestCase
         $this->assertInstanceOf(Structure::class, $updatedStructure);
         $this->assertCount(1, $updatedStructure->getTables());
         $this->assertInstanceOf(Table::class, $structure->getTable('structure_test'));
+    }
+
+    public function testStructureViews(): void
+    {
+        $structure = $this->adapter->getStructure();
+        $this->assertEquals([], $structure->getViews());
+        $this->assertFalse($structure->viewExists('structure_test_view'));
+
+        $migrationTable = new MigrationTable('structure_test');
+        $migrationTable->addColumn('title', 'string');
+        $migrationTable->create();
+        $migrationView = new MigrationView('structure_test_view');
+        $migrationView->sql('SELECT id, title FROM structure_test');
+        $migrationView->create();
+
+        $queryBuilder = $this->adapter->getQueryBuilder();
+        $queries = array_merge($queryBuilder->createTable($migrationTable), $queryBuilder->createView($migrationView));
+        foreach ($queries as $query) {
+            $this->adapter->query($query);
+        }
+
+        $updatedStructure = $this->adapter->getStructure();
+        $this->assertEquals(['structure_test_view'], $updatedStructure->getViews());
+        $this->assertTrue($updatedStructure->viewExists('structure_test_view'));
+        $this->assertFalse($updatedStructure->viewExists('structure_test'));
+        $this->assertCount(1, $updatedStructure->getTables());
+        $this->assertNull($updatedStructure->getTable('structure_test_view'));
+
+        foreach ($queryBuilder->dropView($migrationView) as $query) {
+            $this->adapter->query($query);
+        }
+        $this->assertFalse($this->adapter->getStructure()->viewExists('structure_test_view'));
     }
 
     public function testUniqueIndexWithLengthSpecified(): void
